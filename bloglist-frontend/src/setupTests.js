@@ -1,0 +1,28 @@
+import '@testing-library/jest-dom/extend-expect'
+jest.mock('./services/blogs')
+
+let savedItems = {}
+
+const localStorageMock = {
+  setItem: (key, item) => {
+    savedItems[key] = item
+  },
+  getItem: (key) => savedItems[key],
+  clear: savedItems = {}
+}
+
+Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+
+const originalError = console.error
+beforeAll(() => {
+  console.error = (...args) => {
+    if (/Warning.*not wrapped in act/.test(args[0])) {
+      return
+    }
+    originalError.call(console, ...args)
+  }
+})
+
+afterAll(() => {
+  console.error = originalError
+})
